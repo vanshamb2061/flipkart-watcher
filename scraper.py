@@ -17,6 +17,9 @@ from bs4 import BeautifulSoup
 from notify import send_all
 
 # ── Logging ────────────────────────────────────────────────────────────────────
+# Ensure logs directory exists
+Path("logs").mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
