@@ -1,0 +1,37 @@
+name: Flipkart stock watcher
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes
+  workflow_dispatch:           # lets you trigger manually from GitHub UI
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        env:
+          PRODUCTS:             ${{ secrets.PRODUCTS }}
+          DISCORD_WEBHOOK_URL:  ${{ secrets.DISCORD_WEBHOOK_URL }}
+          NTFY_TOPIC:           ${{ secrets.NTFY_TOPIC }}
+          RESEND_API_KEY:       ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM:           ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO:             ${{ secrets.EMAIL_TO }}
+        run: python scraper.py
+
+      - name: Persist state
+        uses: actions/cache@v4
+        with:
+          path: state.json
+          key: flipkart-state-${{ github.run_number }}
+          restore-keys: flipkart-state-
